@@ -81,6 +81,8 @@
 #include "waypoint_func.h"
 #include "window_func.h"
 #include "tilehighlight_func.h"
+#include "rail.h"
+#include "rail_blueprint.h"
 #include "window_gui.h"
 #include "linkgraph/linkgraph_gui.h"
 #include "viewport_kdtree.h"
@@ -973,8 +975,9 @@ static const HighLightStyle _autorail_type[6][2] = {
  *
  * @param *ti TileInfo Tile that is being drawn
  * @param highlight_style Highlight to draw
+ * @param palette Palette for valid track highlights.
  */
-static void DrawAutorailSelection(const TileInfo *ti, HighLightStyle highlight_style)
+static void DrawAutorailSelection(const TileInfo *ti, HighLightStyle highlight_style, PaletteID palette = PAL_NONE)
 {
 	SpriteID image;
 	PaletteID pal;
@@ -994,7 +997,7 @@ static void DrawAutorailSelection(const TileInfo *ti, HighLightStyle highlight_s
 	int offset = _autorail_slope_sprite_offsets[slope][highlight_style & HT_DIR_MASK];
 	if (offset >= 0) {
 		image = SPR_AUTORAIL_BASE + offset;
-		pal = PAL_NONE;
+		pal = palette;
 	} else {
 		image = SPR_AUTORAIL_BASE - offset;
 		pal = PALETTE_SEL_TILE_RED;
@@ -1017,6 +1020,75 @@ const Waypoint *_viewport_highlight_waypoint; ///< Currently selected waypoint f
 const Waypoint *_viewport_highlight_waypoint_rect; ///< Currently selected waypoint for rectangle highlight
 const Town *_viewport_highlight_town; ///< Currently selected town for coverage area highlight
 
+static std::set<TileIndex> _rail_blueprint_selection;
+static RailBlueprintPreview _rail_blueprint_preview;
+
+/** Add a tile to the current blue selection. */
+void AddRailBlueprintHighlight(TileIndex tile)
+{
+	if (_rail_blueprint_selection.insert(tile).second) MarkTileDirtyByTile(tile);
+}
+
+/** Remove a tile from the current blue selection. */
+void RemoveRailBlueprintHighlight(TileIndex tile)
+{
+	if (_rail_blueprint_selection.erase(tile) != 0) MarkTileDirtyByTile(tile);
+}
+
+void ClearRailBlueprintSelection()
+{
+	for (TileIndex tile : _rail_blueprint_selection) MarkTileDirtyByTile(tile);
+	_rail_blueprint_selection.clear();
+}
+
+/** Replace the blueprint placement preview and redraw changed tiles. */
+void SetRailBlueprintPreview(RailBlueprintPreview preview)
+{
+	for (const auto &[tile, data] : _rail_blueprint_preview) {
+		auto replacement = preview.find(tile);
+		if (replacement == preview.end() || replacement->second != data) MarkTileDirtyByTile(tile);
+	}
+	for (const auto &[tile, data] : preview) {
+		if (!_rail_blueprint_preview.contains(tile)) MarkTileDirtyByTile(tile);
+	}
+	_rail_blueprint_preview = std::move(preview);
+}
+
+/** Draw the rail geometry and symbols within the white placement footprint. */
+static void DrawRailBlueprintPreview(const TileInfo *ti, const RailBlueprintPreviewTile &preview)
+{
+	static constexpr TrackIndexArray<SpriteID> rail_sprites{
+		SPR_RAIL_SINGLE_X, SPR_RAIL_SINGLE_Y, SPR_RAIL_SINGLE_NORTH, SPR_RAIL_SINGLE_SOUTH, SPR_RAIL_SINGLE_WEST, SPR_RAIL_SINGLE_EAST,
+	};
+	for (Track track : preview.tracks) {
+		if (ti->tileh == SLOPE_FLAT) {
+			/* The flat rail sprites are ground sprites, with their own ground alignment. */
+			DrawSelectionSprite(rail_sprites[track], PAL_NONE, ti, 0, FoundationPart::Normal);
+		} else {
+			DrawAutorailSelection(ti, static_cast<HighLightStyle>(track));
+		}
+	}
+	for (Track track : preview.bridge_tracks) DrawAutorailSelection(ti, static_cast<HighLightStyle>(track), PALETTE_SEL_TILE_BLUE);
+	if (preview.signals != 0) DrawRailBlueprintSignals(ti->tile, preview.tracks, preview.signals);
+	if (!preview.marker.has_value()) return;
+
+	SpriteID icon;
+	switch (*preview.marker) {
+		case RailBlueprintKind::Depot: icon = SPR_IMG_DEPOT_RAIL; break;
+		case RailBlueprintKind::Station: icon = SPR_IMG_RAIL_STATION; break;
+		case RailBlueprintKind::Waypoint: icon = SPR_IMG_WAYPOINT; break;
+		case RailBlueprintKind::Bridge: icon = SPR_IMG_BRIDGE; break;
+		case RailBlueprintKind::Tunnel: icon = SPR_IMG_TUNNEL_RAIL; break;
+		default: NOT_REACHED();
+	}
+
+	int x = ti->x + TILE_SIZE / 2;
+	int y = ti->y + TILE_SIZE / 2;
+	const Sprite *sprite = GetSprite(icon, SpriteType::Normal);
+	AddTileSpriteToDraw(icon, PAL_NONE, x, y, GetSlopePixelZ(x, y) + 2, nullptr,
+			-sprite->x_offs - sprite->width / 2, -sprite->y_offs - sprite->height);
+}
+
 /**
  * Get tile highlight type of coverage area for a given tile.
  * @param t Tile that is being drawn
@@ -1024,6 +1096,8 @@ const Town *_viewport_highlight_town; ///< Currently selected town for coverage 
  */
 static TileHighlightType GetTileHighlightType(TileIndex t)
 {
+	if (_rail_blueprint_selection.contains(t)) return TileHighlightType::Blue;
+
 	if (_viewport_highlight_station != nullptr) {
 		if (IsTileType(t, TileType::Station) && GetStationIndex(t) == _viewport_highlight_station->index) return TileHighlightType::White;
 		if (_viewport_highlight_station->TileIsInCatchment(t)) return TileHighlightType::Blue;
@@ -1126,8 +1200,10 @@ static void DrawTileSelection(const TileInfo *ti)
 	bool is_redsq = _thd.redsq == ti->tile;
 	if (is_redsq) DrawTileSelectionRect(ti, PALETTE_TILE_RED_PULSATING);
 
-	TileHighlightType tht = GetTileHighlightType(ti->tile);
-	DrawTileHighlightType(ti, tht);
+	auto preview = _rail_blueprint_preview.find(ti->tile);
+	TileHighlightType tht = preview == _rail_blueprint_preview.end() ? GetTileHighlightType(ti->tile) : TileHighlightType::White;
+	if (!is_redsq || preview == _rail_blueprint_preview.end()) DrawTileHighlightType(ti, tht);
+	if (!is_redsq && preview != _rail_blueprint_preview.end()) DrawRailBlueprintPreview(ti, preview->second);
 
 	/* No tile selection active? */
 	if ((_thd.drawstyle & HT_DRAG_MASK) == HT_NONE) return;
@@ -1142,7 +1218,10 @@ static void DrawTileSelection(const TileInfo *ti)
 			IsInsideBS(ti->y, _thd.pos.y, _thd.size.y)) {
 draw_inner:
 		if (_thd.drawstyle & HT_RECT) {
-			if (!is_redsq) DrawTileSelectionRect(ti, _thd.make_square_red ? PALETTE_SEL_TILE_RED : PAL_NONE);
+			const bool blueprint_selected = _rail_blueprint_selection.contains(ti->tile);
+			if (!is_redsq && (_thd.make_square_red || !blueprint_selected)) {
+				DrawTileSelectionRect(ti, _thd.make_square_red ? PALETTE_SEL_TILE_RED : PAL_NONE);
+			}
 		} else if (_thd.drawstyle & HT_POINT) {
 			/* Figure out the Z coordinate for the single dot. */
 			int z = 0;

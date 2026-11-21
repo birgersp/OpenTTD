@@ -24,6 +24,7 @@
 This fork tracks [OpenTTD upstream](https://github.com/OpenTTD/OpenTTD) and carries the following patches.
 
 - **SDL3 mouse wheel scrolling** — Fixes overly fast zooming and list scrolling on high-resolution wheels and touchpads by accumulating fractional wheel movement into whole steps.
+- **Railroad Copy Construction** — Save reusable rail layouts from the railroad construction toolbar by painting or erasing tiles. Preview a saved layout under the cursor, press **R** to rotate it, and click to build. The blueprint library is stored locally and can be reused across games.
 
 ## 1.0) About
 

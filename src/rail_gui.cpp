@@ -34,6 +34,7 @@
 #include "vehicle_func.h"
 #include "zoom_func.h"
 #include "rail_gui.h"
+#include "rail_blueprint.h"
 #include "toolbar_gui.h"
 #include "station_cmd.h"
 #include "tunnelbridge_cmd.h"
@@ -634,6 +635,10 @@ struct BuildRailToolbarWindow : Window {
 	void OnClick([[maybe_unused]] Point pt, WidgetID widget, [[maybe_unused]] int click_count) override
 	{
 		if (widget < WID_RAT_BUILD_NS) return;
+		if (widget == WID_RAT_BLUEPRINTS) {
+			ShowRailBlueprintWindow(this);
+			return;
+		}
 
 		_remove_button_clicked = false;
 
@@ -951,6 +956,8 @@ static constexpr std::initializer_list<NWidgetPart> _nested_build_rail_widgets =
 						SetFill(0, 1), SetToolbarMinimalSize(1), SetSpriteTip(SPR_IMG_REMOVE, STR_RAIL_TOOLBAR_TOOLTIP_TOGGLE_BUILD_REMOVE_FOR),
 		NWidget(WWT_IMGBTN, Colours::DarkGreen, WID_RAT_CONVERT_RAIL),
 						SetFill(0, 1), SetToolbarMinimalSize(1), SetSpriteTip(SPR_IMG_CONVERT_RAIL, STR_RAIL_TOOLBAR_TOOLTIP_CONVERT_RAIL),
+		NWidget(WWT_IMGBTN, Colours::DarkGreen, WID_RAT_BLUEPRINTS),
+						SetFill(0, 1), SetToolbarMinimalSize(1), SetSpriteTip(SPR_CLONE_TRAIN, STR_RAIL_BLUEPRINT_CAPTION),
 	EndContainer(),
 };
 

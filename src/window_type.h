@@ -743,6 +743,8 @@ enum class WindowClass : uint16_t {
 	 */
 	Help,
 
+	BuildRailBlueprint, ///< Rail blueprint library.
+
 	Invalid = 0xFFFF, ///< Invalid window.
 };
 

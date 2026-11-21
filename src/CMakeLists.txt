@@ -378,6 +378,9 @@ add_files(
     querystring_gui.h
     rail.cpp
     rail.h
+    rail_blueprint.cpp
+    rail_blueprint.h
+    rail_blueprint_gui.cpp
     rail_cmd.cpp
     rail_cmd.h
     rail_gui.cpp

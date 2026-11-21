@@ -11,6 +11,7 @@ add_test_files(
     mock_spritecache.cpp
     mock_spritecache.h
     overflowsafe_type.cpp
+    rail_blueprint.cpp
     string_builder.cpp
     string_consumer.cpp
     string_inplace.cpp

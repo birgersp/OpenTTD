@@ -2855,6 +2855,42 @@ STR_RAIL_TOOLBAR_TOOLTIP_BUILD_RAILROAD_TUNNEL                  :{BLACK}Build ra
 STR_RAIL_TOOLBAR_TOOLTIP_TOGGLE_BUILD_REMOVE_FOR                :{BLACK}Toggle build/remove for railway track, signals, waypoints and stations. Ctrl+Click to also remove the rail of waypoints and stations
 STR_RAIL_TOOLBAR_TOOLTIP_CONVERT_RAIL                           :{BLACK}Convert/Upgrade the type of rail. Also press Shift to show cost estimate only
 
+STR_RAIL_BLUEPRINT_CAPTION                                      :{WHITE}Railroad Copy Construction
+STR_RAIL_BLUEPRINT_CHOOSE                                       :{BLACK}Choose a blueprint
+STR_RAIL_BLUEPRINT_PLACE                                        :{BLACK}Place
+STR_RAIL_BLUEPRINT_DELETE                                       :{BLACK}Delete
+STR_RAIL_BLUEPRINT_DELETE_TOOLTIP                               :{BLACK}Delete the selected blueprint
+STR_RAIL_BLUEPRINT_DELETE_CAPTION                               :{WHITE}Delete blueprint
+STR_RAIL_BLUEPRINT_DELETE_CONFIRM                               :{YELLOW}Delete the blueprint “{RAW_STRING}”?
+STR_RAIL_BLUEPRINT_NEW                                          :{BLACK}New Blueprint
+STR_RAIL_BLUEPRINT_ROTATE                                       :{BLACK}Rotate 90°
+STR_RAIL_BLUEPRINT_ROTATE_TOOLTIP                               :{BLACK}Rotate this placement clockwise by a quarter-turn
+STR_RAIL_BLUEPRINT_DETAILS                                      :{BLACK}Show Details
+STR_RAIL_BLUEPRINT_DETAILS_TOOLTIP                              :{BLACK}Show tracks, signals and structures within the placement outline
+STR_RAIL_BLUEPRINT_PAINT                                        :{BLACK}Paint
+STR_RAIL_BLUEPRINT_RECTANGLE                                    :{BLACK}Rectangle
+STR_RAIL_BLUEPRINT_ERASE                                        :{BLACK}Erase
+STR_RAIL_BLUEPRINT_CLEAR                                        :{BLACK}Clear
+STR_RAIL_BLUEPRINT_CLEAR_CAPTION                                :{WHITE}Clear blueprint selection
+STR_RAIL_BLUEPRINT_CLEAR_CONFIRM                                :{YELLOW}Are you sure you want to clear all selected tiles?
+STR_RAIL_BLUEPRINT_SUBMIT                                       :{BLACK}Submit
+STR_RAIL_BLUEPRINT_NAME                                         :{WHITE}Name the blueprint
+STR_RAIL_BLUEPRINT_LIBRARY_HINT                                 :{BLACK}Choose a blueprint to place or start a new selection.
+STR_RAIL_BLUEPRINT_SELECT_HINT                                  :{BLACK}Mark railway tiles using as many strokes as you need.
+STR_RAIL_BLUEPRINT_ERASE_HINT                                   :{BLACK}Click or drag to remove tiles from the selection.
+STR_RAIL_BLUEPRINT_PLACE_HINT                                   :{BLACK}Click the map to build at the highlighted tiles.
+STR_RAIL_BLUEPRINT_PAINT_TOOLTIP                                :{BLACK}Drag to paint a path of tiles
+STR_RAIL_BLUEPRINT_RECTANGLE_TOOLTIP                            :{BLACK}Drag to mark a rectangle of tiles
+STR_RAIL_BLUEPRINT_ERASE_TOOLTIP                                :{BLACK}Toggle removing tiles with Paint or Rectangle
+STR_RAIL_BLUEPRINT_CLEAR_TOOLTIP                                :{BLACK}Clear the current selection
+STR_ERROR_RAIL_BLUEPRINT_EMPTY                                  :{WHITE}Select at least one piece of railway construction
+STR_ERROR_RAIL_BLUEPRINT_SAVE                                   :{WHITE}Could not save the rail blueprint library
+STR_ERROR_RAIL_BLUEPRINT_BUILD                                  :{WHITE}Could not build the rail blueprint
+STR_ERROR_RAIL_BLUEPRINT_OUTSIDE_MAP                            :{WHITE}The blueprint extends beyond the buildable map
+STR_ERROR_RAIL_BLUEPRINT_UNAVAILABLE                            :{WHITE}A rail type or station design in this blueprint is unavailable
+STR_ERROR_RAIL_BLUEPRINT_BUSY                                   :{WHITE}Wait for the current blueprint to finish building
+STR_ERROR_RAIL_BLUEPRINT_TUNNEL_EXIT                            :{WHITE}The terrain does not match the blueprint tunnel exit
+
 STR_RAIL_NAME_RAILROAD                                          :Railway
 STR_RAIL_NAME_ELRAIL                                            :Electrified railway
 STR_RAIL_NAME_MONORAIL                                          :Monorail

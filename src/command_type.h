@@ -380,6 +380,10 @@ enum class Commands : uint8_t {
 	UpdateLeagueTableElementScore, ///< update the score of a league table element
 	RemoveLeagueTableElement, ///< remove a league table element
 
+	BuildRailBlueprintTrack, ///< build tracks and their signals together
+	BuildRailBlueprintWaypoint, ///< build a rail waypoint and its underlying track
+	BuildRailBlueprintTunnel, ///< build a rail tunnel with a specified exit
+
 	End, ///< @important Must ALWAYS be on the end of this list!! (period)
 };
 

@@ -1898,7 +1898,8 @@ static bool IsTrainSignalSideRight()
 	}
 }
 
-static void DrawSingleSignal(TileIndex tile, const RailTypeInfo *rti, Track track, SignalState condition, SignalOffsets image, uint pos)
+static void DrawSingleSignal(TileIndex tile, const RailTypeInfo *rti, Track track, SignalType type, SignalVariant variant,
+		SignalState condition, SignalOffsets image, uint pos)
 {
 	static const Point SignalPositions[2][12] = {
 		{ // Signals on the left side
@@ -1918,10 +1919,7 @@ static void DrawSingleSignal(TileIndex tile, const RailTypeInfo *rti, Track trac
 	uint x = TileX(tile) * TILE_SIZE + SignalPositions[signal_on_right][pos].x;
 	uint y = TileY(tile) * TILE_SIZE + SignalPositions[signal_on_right][pos].y;
 
-	SignalType type       = GetSignalType(tile, track);
-	SignalVariant variant = GetSignalVariant(tile, track);
-
-	SpriteID sprite = GetCustomSignalSprite(rti, tile, type, variant, condition);
+	SpriteID sprite = rti == nullptr ? 0 : GetCustomSignalSprite(rti, tile, type, variant, condition);
 	if (sprite != 0) {
 		sprite += image;
 	} else {
@@ -2433,38 +2431,54 @@ static void DrawTrackBits(TileInfo *ti, TrackBits track)
 	}
 }
 
-static void DrawSignals(TileIndex tile, TrackBits rails, const RailTypeInfo *rti)
+/** Visit the possible signal positions on a rail tile. */
+static void ForEachSignalPosition(TrackBits rails, auto draw)
 {
-	auto MAYBE_DRAW_SIGNAL = [&](uint8_t signalbit, SignalOffsets image, uint pos, Track track) {
-		if (IsSignalPresent(tile, signalbit)) DrawSingleSignal(tile, rti, track, GetSingleSignalState(tile, signalbit), image, pos);
-	};
-
 	if (!rails.Test(Track::Y)) {
 		if (!rails.Test(Track::X)) {
 			if (rails.Test(Track::Left)) {
-				MAYBE_DRAW_SIGNAL(2, SIGNAL_TO_NORTH, 0, Track::Left);
-				MAYBE_DRAW_SIGNAL(3, SIGNAL_TO_SOUTH, 1, Track::Left);
+				draw(2, SIGNAL_TO_NORTH, 0, Track::Left);
+				draw(3, SIGNAL_TO_SOUTH, 1, Track::Left);
 			}
 			if (rails.Test(Track::Right)) {
-				MAYBE_DRAW_SIGNAL(0, SIGNAL_TO_NORTH, 2, Track::Right);
-				MAYBE_DRAW_SIGNAL(1, SIGNAL_TO_SOUTH, 3, Track::Right);
+				draw(0, SIGNAL_TO_NORTH, 2, Track::Right);
+				draw(1, SIGNAL_TO_SOUTH, 3, Track::Right);
 			}
 			if (rails.Test(Track::Upper)) {
-				MAYBE_DRAW_SIGNAL(3, SIGNAL_TO_WEST, 4, Track::Upper);
-				MAYBE_DRAW_SIGNAL(2, SIGNAL_TO_EAST, 5, Track::Upper);
+				draw(3, SIGNAL_TO_WEST, 4, Track::Upper);
+				draw(2, SIGNAL_TO_EAST, 5, Track::Upper);
 			}
 			if (rails.Test(Track::Lower)) {
-				MAYBE_DRAW_SIGNAL(1, SIGNAL_TO_WEST, 6, Track::Lower);
-				MAYBE_DRAW_SIGNAL(0, SIGNAL_TO_EAST, 7, Track::Lower);
+				draw(1, SIGNAL_TO_WEST, 6, Track::Lower);
+				draw(0, SIGNAL_TO_EAST, 7, Track::Lower);
 			}
 		} else {
-			MAYBE_DRAW_SIGNAL(3, SIGNAL_TO_SOUTHWEST, 8, Track::X);
-			MAYBE_DRAW_SIGNAL(2, SIGNAL_TO_NORTHEAST, 9, Track::X);
+			draw(3, SIGNAL_TO_SOUTHWEST, 8, Track::X);
+			draw(2, SIGNAL_TO_NORTHEAST, 9, Track::X);
 		}
 	} else {
-		MAYBE_DRAW_SIGNAL(3, SIGNAL_TO_SOUTHEAST, 10, Track::Y);
-		MAYBE_DRAW_SIGNAL(2, SIGNAL_TO_NORTHWEST, 11, Track::Y);
+		draw(3, SIGNAL_TO_SOUTHEAST, 10, Track::Y);
+		draw(2, SIGNAL_TO_NORTHWEST, 11, Track::Y);
 	}
+}
+
+static void DrawSignals(TileIndex tile, TrackBits rails, const RailTypeInfo *rti)
+{
+	ForEachSignalPosition(rails, [&](uint8_t bit, SignalOffsets image, uint pos, Track track) {
+		if (!IsSignalPresent(tile, bit)) return;
+		DrawSingleSignal(tile, rti, track, GetSignalType(tile, track), GetSignalVariant(tile, track), GetSingleSignalState(tile, bit), image, pos);
+	});
+}
+
+/** Draw the unbuilt signals in the blueprint using the standard signal sprites. */
+void DrawRailBlueprintSignals(TileIndex tile, TrackBits rails, uint64_t signals)
+{
+	ForEachSignalPosition(rails, [&](uint8_t bit, SignalOffsets image, uint pos, Track track) {
+		const uint8_t signal = GB(signals, 8 * to_underlying(track), 8);
+		if (!HasBit(signal, bit)) return;
+		DrawSingleSignal(tile, nullptr, track, static_cast<SignalType>(GB(signal, 4, 3)), static_cast<SignalVariant>(GB(signal, 7, 1)),
+				SignalState::Red, image, pos);
+	});
 }
 
 /** @copydoc DrawTileProc */

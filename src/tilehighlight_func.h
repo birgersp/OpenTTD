@@ -28,6 +28,9 @@ void VpSetPresizeRange(TileIndex from, TileIndex to);
 void VpSetPlaceSizingLimit(int limit);
 
 void UpdateTileSelection();
+void AddRailBlueprintHighlight(TileIndex tile);
+void RemoveRailBlueprintHighlight(TileIndex tile);
+void ClearRailBlueprintSelection();
 
 extern TileHighlightData _thd;
 

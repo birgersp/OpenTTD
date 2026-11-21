@@ -33,6 +33,7 @@
 #include "../core/pool_func.hpp"
 #include "../error.h"
 #include "../misc_cmd.h"
+#include "../rail_blueprint.h"
 #include "../core/string_builder.hpp"
 #ifdef DEBUG_DUMP_COMMANDS
 #	include "../fileio_func.h"
@@ -599,6 +600,7 @@ static void InitializeNetworkPools(bool close_admins = true)
  */
 void NetworkClose(bool close_admins)
 {
+	CancelRailBlueprintPlacement();
 	if (_network_server) {
 		if (close_admins) {
 			for (ServerNetworkAdminSocketHandler *as : ServerNetworkAdminSocketHandler::Iterate()) {

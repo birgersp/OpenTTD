@@ -15,6 +15,7 @@
 #include "direction_type.h"
 #include "rail_type.h"
 #include "signal_type.h"
+#include "newgrf_station.h"
 
 CommandCost CmdBuildRailroadTrack(DoCommandFlags flags, TileIndex end_tile, TileIndex start_tile, RailType railtype, Track track, bool auto_remove_signals, bool fail_on_obstacle);
 CommandCost CmdRemoveRailroadTrack(DoCommandFlags flags, TileIndex end_tile, TileIndex start_tile, Track track);
@@ -38,7 +39,16 @@ DEF_CMD_TRAIT(Commands::ConvertRail, CmdConvertRail, {}, CommandType::LandscapeC
 DEF_CMD_TRAIT(Commands::BuildSignalLong, CmdBuildSignalTrack, CommandFlag::Auto, CommandType::LandscapeConstruction)
 DEF_CMD_TRAIT(Commands::RemoveSignalLong, CmdRemoveSignalTrack, CommandFlag::Auto, CommandType::LandscapeConstruction)
 
+CommandCost CmdBuildRailBlueprintTrack(DoCommandFlags flags, TileIndex tile, RailType railtype, TrackBits tracks, uint64_t signals);
+CommandCost CmdBuildRailBlueprintWaypoint(DoCommandFlags flags, TileIndex tile, RailType railtype, Axis axis, uint8_t count, StationClassID station_class, uint16_t station_type);
+CommandCost CmdBuildRailBlueprintTunnel(DoCommandFlags flags, TileIndex tile, TileIndex exit, RailType railtype);
+
+DEF_CMD_TRAIT(Commands::BuildRailBlueprintTrack, CmdBuildRailBlueprintTrack, CommandFlag::NoTest, CommandType::LandscapeConstruction)
+DEF_CMD_TRAIT(Commands::BuildRailBlueprintWaypoint, CmdBuildRailBlueprintWaypoint, CommandFlag::NoTest, CommandType::LandscapeConstruction)
+DEF_CMD_TRAIT(Commands::BuildRailBlueprintTunnel, CmdBuildRailBlueprintTunnel, CommandFlag::Auto, CommandType::LandscapeConstruction)
+
 CommandCallback CcPlaySound_CONSTRUCTION_RAIL;
+CommandCallback CcRailBlueprintPiece;
 CommandCallback CcStation;
 CommandCallback CcBuildRailTunnel;
 void CcRailDepot(Commands cmd, const CommandCost &result, TileIndex tile, RailType rt, DiagDirection dir);

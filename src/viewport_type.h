@@ -139,6 +139,8 @@ enum ViewportDragDropSelectionProcess : uint8_t {
 	DDSP_BUILD_STATION,        ///< Station placement
 	DDSP_REMOVE_STATION,       ///< Station removal
 	DDSP_CONVERT_RAIL,         ///< Rail conversion
+	DDSP_RAIL_BLUEPRINT_PAINT, ///< Paint a rail blueprint selection
+	DDSP_RAIL_BLUEPRINT_RECT,  ///< Add a rectangle to a rail blueprint selection
 
 	/* Road specific actions */
 	DDSP_PLACE_ROAD_X_DIR,     ///< Road placement (X axis)
