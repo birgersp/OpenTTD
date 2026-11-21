@@ -2,6 +2,7 @@
 
 ## Table of contents
 
+- [Fork patches](#fork-patches)
 - 1.0) [About](#10-about)
     - 1.1) [Downloading OpenTTD](#11-downloading-openttd)
     - 1.2) [OpenTTD gameplay manual](#12-openttd-gameplay-manual)
@@ -17,6 +18,12 @@
     - 2.4) [Translating](#24-translating)
 - 3.0) [Licensing](#30-licensing)
 - 4.0) [Credits](#40-credits)
+
+## Fork patches
+
+This fork tracks [OpenTTD upstream](https://github.com/OpenTTD/OpenTTD) and carries the following patches.
+
+- **SDL3 mouse wheel scrolling** — Fixes overly fast zooming and list scrolling on high-resolution wheels and touchpads by accumulating fractional wheel movement into whole steps.
 
 ## 1.0) About
 
