@@ -475,9 +475,12 @@ bool VideoDriver_SDL_Base::PollEvent()
 		}
 
 		case SDL_EVENT_MOUSE_WHEEL: {
-			if (ev.wheel.y > 0) {
+			/* Accumulate fractional wheel motion before generating a discrete step. */
+			float whole_steps;
+			this->wheel_remainder = std::modf(this->wheel_remainder + ev.wheel.y, &whole_steps);
+			if (whole_steps > 0) {
 				_cursor.wheel--;
-			} else if (ev.wheel.y < 0) {
+			} else if (whole_steps < 0) {
 				_cursor.wheel++;
 			}
 

@@ -106,6 +106,8 @@ private:
 	 */
 	bool edit_box_focused = false;
 
+	float wheel_remainder = 0.0f; ///< Vertical wheel movement below one discrete step.
+
 	int startup_display = 0; ///< The display to show OpenTTD on when starting.
 };
 
